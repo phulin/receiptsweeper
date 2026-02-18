@@ -72,39 +72,107 @@ const getAction = (): PlayerAction => {
 	return selected?.value === "flag" ? "flag" : "test";
 };
 
-const renderReceiptHtml = (entry: PrintedGrid, idx: number): string => {
+const SVG_FONT_SIZE = 13;
+const SVG_LINE_HEIGHT = 18;
+const SVG_PAPER_WIDTH = 300;
+const SVG_PADDING_TOP = 14;
+const SVG_PADDING_BOTTOM = 14;
+const SVG_SEPARATOR_GAP = 12;
+
+const receiptHeight = (entry: PrintedGrid): number => {
 	const { boardLines, footerLines } = formatPrintedGrid(entry);
-	const boardHtml = boardLines.map((line) => `<div>${line}</div>`).join("");
-	const footerHtml = footerLines
-		.map((line) => `<div class="receipt-footer-line">${line}</div>`)
-		.join("");
-	return `<article class="receipt-strip"><header>#${idx + 1}</header><div class="receipt-board">${boardHtml}</div><div class="receipt-footer">${footerHtml}</div></article>`;
+	const lineCount = 1 + boardLines.length + footerLines.length; // header + board + footer
+	return (
+		SVG_PADDING_TOP +
+		lineCount * SVG_LINE_HEIGHT +
+		SVG_PADDING_BOTTOM +
+		SVG_SEPARATOR_GAP
+	);
+};
+
+const escSvg = (s: string): string =>
+	s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+const renderReceiptSvg = (
+	entry: PrintedGrid,
+	idx: number,
+	yOffset: number,
+): string => {
+	const { boardLines, footerLines } = formatPrintedGrid(entry);
+	const cx = SVG_PAPER_WIDTH / 2;
+	let y = yOffset + SVG_PADDING_TOP + SVG_FONT_SIZE;
+	const lines: string[] = [];
+
+	// Header
+	lines.push(
+		`<text x="${cx}" y="${y}" text-anchor="middle" font-weight="700" font-size="${SVG_FONT_SIZE}" font-family="'IBM Plex Mono', monospace">#${idx + 1}</text>`,
+	);
+	y += SVG_LINE_HEIGHT;
+
+	// Board lines (centered)
+	for (const line of boardLines) {
+		lines.push(
+			`<text x="${cx}" y="${y}" text-anchor="middle" font-size="${SVG_FONT_SIZE}" font-family="'IBM Plex Mono', monospace">${escSvg(line)}</text>`,
+		);
+		y += SVG_LINE_HEIGHT;
+	}
+
+	// Footer lines (centered, slightly smaller)
+	for (const line of footerLines) {
+		lines.push(
+			`<text x="${cx}" y="${y}" text-anchor="middle" font-size="${SVG_FONT_SIZE * 0.85}" font-family="'IBM Plex Mono', monospace">${escSvg(line)}</text>`,
+		);
+		y += SVG_LINE_HEIGHT;
+	}
+
+	// Dashed separator (text)
+	const sepY = yOffset + receiptHeight(entry) - SVG_SEPARATOR_GAP / 2;
+	const dash = "- ".repeat(20).trim();
+	lines.push(
+		`<text x="${cx}" y="${sepY}" text-anchor="middle" font-size="${SVG_FONT_SIZE * 0.85}" font-family="'IBM Plex Mono', monospace" fill="#bbb">${dash}</text>`,
+	);
+
+	return `<g data-receipt="${idx}">${lines.join("")}</g>`;
+};
+
+const rebuildReceiptSvg = (): { svg: string; totalHeight: number } => {
+	let totalHeight = 0;
+	const groups: string[] = [];
+	// Build in order (oldest first), then we'll reverse the display (newest on top)
+	const offsets: number[] = [];
+	for (let i = 0; i < feed.length; i++) {
+		offsets.push(receiptHeight(feed[i]));
+	}
+	// Newest on top: reverse order
+	let y = 0;
+	for (let i = feed.length - 1; i >= 0; i--) {
+		groups.push(renderReceiptSvg(feed[i], i, y));
+		y += offsets[i];
+	}
+	totalHeight = y;
+	return { svg: groups.join(""), totalHeight };
 };
 
 const appendReceipt = (snapshot: PrintedGrid): void => {
-	const paper = document.querySelector<HTMLElement>(".printer-paper");
+	const paper = document.querySelector<SVGSVGElement>(".printer-paper");
 	if (!paper) return;
 
-	const idx = feed.length - 1;
-	const article = document.createElement("div");
-	article.innerHTML = renderReceiptHtml(snapshot, idx);
-	const newEl = article.firstElementChild as HTMLElement;
+	const newHeight = receiptHeight(snapshot);
 
-	// Prepend (newest on top)
-	paper.insertBefore(newEl, paper.firstChild);
+	// Rebuild SVG content
+	const { svg, totalHeight } = rebuildReceiptSvg();
+	paper.innerHTML = `<rect width="${SVG_PAPER_WIDTH}" height="${totalHeight}" fill="#fefcf8" />${svg}`;
+	paper.setAttribute("viewBox", `0 0 ${SVG_PAPER_WIDTH} ${totalHeight}`);
 
-	// Measure the new element's height
-	const height = newEl.offsetHeight;
-
-	// Translate paper up to hide the new entry, then animate down
-	paper.style.transform = `translateY(-${height}px)`;
+	// Animate: translate paper up to hide the new entry, then slide down
+	paper.style.transform = `translateY(-${newHeight}px)`;
 	const duration = 2000;
 	const startTime = performance.now();
 	const step = (now: number) => {
 		const elapsed = now - startTime;
 		const t = Math.min(elapsed / duration, 1);
 		const ease = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
-		paper.style.transform = `translateY(-${height * (1 - ease)}px)`;
+		paper.style.transform = `translateY(-${newHeight * (1 - ease)}px)`;
 		if (t < 1) requestAnimationFrame(step);
 	};
 	requestAnimationFrame(step);
@@ -168,22 +236,13 @@ const onNewGame = async (): Promise<void> => {
 	await printBoard("test", { x: 0, y: 0 });
 };
 
-const renderFeed = (): string =>
-	[...feed]
-		.map((entry, idx) => {
-			const { boardLines, footerLines } = formatPrintedGrid(entry);
-			const boardHtml = boardLines.map((line) => `<div>${line}</div>`).join("");
-			const footerHtml = footerLines
-				.map((line) => `<div class="receipt-footer-line">${line}</div>`)
-				.join("");
-			return {
-				idx,
-				html: `<article class="receipt-strip"><header>#${idx + 1}</header><div class="receipt-board">${boardHtml}</div><div class="receipt-footer">${footerHtml}</div></article>`,
-			};
-		})
-		.reverse()
-		.map((e) => e.html)
-		.join("");
+const renderFeedSvg = (): string => {
+	if (feed.length === 0) {
+		return `<svg class="printer-paper" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SVG_PAPER_WIDTH} 10"><rect width="${SVG_PAPER_WIDTH}" height="10" fill="#fefcf8" /></svg>`;
+	}
+	const { svg, totalHeight } = rebuildReceiptSvg();
+	return `<svg class="printer-paper" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SVG_PAPER_WIDTH} ${totalHeight}"><rect width="${SVG_PAPER_WIDTH}" height="${totalHeight}" fill="#fefcf8" />${svg}</svg>`;
+};
 
 const render = (): void => {
 	app.innerHTML = `
@@ -226,7 +285,7 @@ const render = (): void => {
             <rect x="330" y="116" width="40" height="4" rx="2" fill="#1a1a1a" />
           </svg>
         </div>
-        <div class="printer-paper-clip"><div class="printer-paper">${renderFeed()}</div></div>
+        <div class="printer-paper-clip">${renderFeedSvg()}</div>
       </section>
     </main>
   `;
