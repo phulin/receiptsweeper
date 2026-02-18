@@ -1,20 +1,23 @@
 {
-  "name": "receiptsweeper",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "packageManager": "yarn@4.12.0",
-  "scripts": {
-    "start": "vite",
-    "dev": "vite",
-    "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "clean": "rm -rf dist",
-    "check": "yarn typecheck && yarn build"
-  },
-  "devDependencies": {
-    "typescript": "^5.7.3",
-    "vite": "^6.0.11"
-  }
+	"name": "receiptsweeper",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"packageManager": "yarn@4.12.0",
+	"scripts": {
+		"start": "vite",
+		"dev": "vite",
+		"typecheck": "tsc --noEmit",
+		"build": "tsc --noEmit && vite build",
+		"preview": "vite preview",
+		"clean": "rm -rf dist",
+		"format": "biome format --write .",
+		"lint": "biome lint .",
+		"check": "biome check . && yarn typecheck && yarn build"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.2",
+		"typescript": "^5.7.3",
+		"vite": "^6.0.11"
+	}
 }
