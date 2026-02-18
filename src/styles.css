@@ -172,16 +172,53 @@ body {
 	width: 56%;
 	margin: 0 auto;
 	overflow: hidden;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.12);
 	margin-top: -218px;
 	position: relative;
 	z-index: 3;
-	padding: 0 16px 20px;
 }
 
 .printer-paper {
-	display: block;
-	width: 100%;
-	filter: drop-shadow(2px 4px 12px rgba(0, 0, 0, 0.12));
+	background: #fefcf8;
+	padding: 1rem 1.2rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	min-height: 100%;
+}
+
+.receipt-strip {
+	border-bottom: 1px dashed #bbb;
+	margin: 0 0 1rem;
+	padding: 0 0 1rem;
+	font-size: 0.95rem;
+	line-height: 1.5;
+	text-align: center;
+}
+
+.receipt-strip header {
+	margin-bottom: 0.25rem;
+	font-weight: 700;
+	text-align: center;
+}
+
+.receipt-board {
+	white-space: pre;
+	display: inline-block;
+	text-align: left;
+}
+
+.receipt-footer {
+	text-align: center;
+	white-space: normal;
+	margin-top: 0.25rem;
+}
+
+.receipt-footer-line {
+	font-size: 0.85rem;
 }
 
 @keyframes slideIn {
