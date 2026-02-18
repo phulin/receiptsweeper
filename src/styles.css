@@ -169,11 +169,11 @@ body {
 }
 
 .printer-paper-clip {
-	width: 56%;
+	width: 460px;
 	margin: 0 auto;
 	overflow: hidden;
 	padding: 0 1.4rem 1.4rem;
-	margin-top: -218px;
+	margin-top: -24%;
 	position: relative;
 	z-index: 3;
 }
