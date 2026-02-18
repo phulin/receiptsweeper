@@ -172,10 +172,7 @@ body {
 	width: 56%;
 	margin: 0 auto;
 	overflow: hidden;
-	border-left: 1px solid #ddd;
-	border-right: 1px solid #ddd;
-	border-bottom: 1px solid #ddd;
-	box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.12);
+	padding: 0 1.4rem 1.4rem;
 	margin-top: -218px;
 	position: relative;
 	z-index: 3;
@@ -183,7 +180,8 @@ body {
 
 .printer-paper {
 	background: #fefcf8;
-	padding: 1rem 1.2rem;
+	padding: 1rem 1.4rem 1.2rem;
+	box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.12);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -191,12 +189,16 @@ body {
 }
 
 .receipt-strip {
-	border-bottom: 1px dashed #bbb;
-	margin: 0 0 1rem;
 	padding: 0 0 1rem;
 	font-size: 0.95rem;
 	line-height: 1.5;
 	text-align: center;
+}
+
+.receipt-divider {
+	margin-top: 0.6rem;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .receipt-strip header {

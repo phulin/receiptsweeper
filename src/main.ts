@@ -22,7 +22,7 @@ const game = new MinesweeperGame();
 const feed: PrintedGrid[] = [];
 
 const state = {
-	status: "Enter a coordinate and action to start.",
+	status: "Enter a coordinate and action.",
 	gameOver: false,
 };
 
@@ -78,7 +78,7 @@ const renderReceiptHtml = (entry: PrintedGrid, idx: number): string => {
 	const footerHtml = footerLines
 		.map((line) => `<div class="receipt-footer-line">${line}</div>`)
 		.join("");
-	return `<article class="receipt-strip"><header>#${idx + 1}</header><div class="receipt-board">${boardHtml}</div><div class="receipt-footer">${footerHtml}</div></article>`;
+	return `<article class="receipt-strip"><header>#${idx + 1}</header><div class="receipt-board">${boardHtml}</div><div class="receipt-footer">${footerHtml}</div><div class="receipt-divider">----------------------------------------</div></article>`;
 };
 
 const appendReceipt = (snapshot: PrintedGrid): void => {
@@ -135,6 +135,15 @@ const printBoard = async (
 	await printer.printGrid(snapshot);
 };
 
+const syncControls = (): void => {
+	const printButton = document.querySelector<HTMLButtonElement>(
+		"#action-form button[type='submit']",
+	);
+	if (printButton) {
+		printButton.disabled = state.gameOver;
+	}
+};
+
 const onSubmitAction = async (event: SubmitEvent): Promise<void> => {
 	event.preventDefault();
 	const coordinate = getCoordinate();
@@ -149,6 +158,7 @@ const onSubmitAction = async (event: SubmitEvent): Promise<void> => {
 	const result = game.applyAction(action, coordinate);
 	state.status = result.message;
 	state.gameOver = result.isGameOver;
+	syncControls();
 	await printBoard(action, coordinate);
 	persistState();
 	const input = document.querySelector<HTMLInputElement>("#coord-input");
@@ -162,6 +172,7 @@ const onNewGame = async (): Promise<void> => {
 	const result = game.reset();
 	state.status = result.message;
 	state.gameOver = false;
+	syncControls();
 	feed.length = 0;
 	slug = null;
 	history.replaceState(null, "", window.location.pathname);
@@ -178,7 +189,7 @@ const renderFeed = (): string =>
 				.join("");
 			return {
 				idx,
-				html: `<article class="receipt-strip"><header>#${idx + 1}</header><div class="receipt-board">${boardHtml}</div><div class="receipt-footer">${footerHtml}</div></article>`,
+				html: `<article class="receipt-strip"><header>#${idx + 1}</header><div class="receipt-board">${boardHtml}</div><div class="receipt-footer">${footerHtml}</div><div class="receipt-divider">----------------------------------------</div></article>`,
 			};
 		})
 		.reverse()
