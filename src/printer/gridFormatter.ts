@@ -14,18 +14,25 @@ const cellToken = (cell: CellState): string => {
   return cell.adjacentMines === 0 ? " " : `${cell.adjacentMines}`;
 };
 
-export const formatPrintedGrid = (print: PrintedGrid): string[] => {
+export interface FormattedReceipt {
+  boardLines: string[];
+  footerLines: string[];
+}
+
+export const formatPrintedGrid = (print: PrintedGrid): FormattedReceipt => {
   const topAxis = `   ${Array.from({ length: GRID_DIMENSION }, (_, i) => i).join(" ")}`;
-  const lines = [topAxis];
+  const boardLines = [topAxis];
   for (let y = 0; y < GRID_DIMENSION; y += 1) {
     const row = print.boardLines[y];
     const label = String.fromCharCode(65 + y); // A-J
-    lines.push(` ${label} ${row}`);
+    boardLines.push(` ${label} ${row}`);
   }
-  lines.push(`ACTION: ${print.action.toUpperCase()} @ (${print.coordinate.x},${print.coordinate.y})`);
-  lines.push(`STATUS: ${print.statusLine}`);
-  lines.push(`TIME: ${print.timestamp}`);
-  return lines;
+  const footerLines = [
+    `ACTION: ${print.action.toUpperCase()} @ (${print.coordinate.x},${print.coordinate.y})`,
+    `STATUS: ${print.statusLine}`,
+    `TIME: ${print.timestamp}`,
+  ];
+  return { boardLines, footerLines };
 };
 
 export const boardToReceiptRows = (board: CellState[][]): string[] =>

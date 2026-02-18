@@ -134,6 +134,15 @@ export class MinesweeperGame {
     return this.board;
   }
 
+  public restoreState(board: CellState[][], gameOver: boolean): void {
+    this.board = board;
+    this.isGameOver = gameOver;
+  }
+
+  public getIsGameOver(): boolean {
+    return this.isGameOver;
+  }
+
   public applyAction(action: PlayerAction, coordinate: Coordinate): GameResult {
     if (this.isGameOver) {
       return {
