@@ -146,6 +146,8 @@ const onSubmitAction = async (event: SubmitEvent): Promise<void> => {
   state.gameOver = result.isGameOver;
   await printBoard(action, coordinate);
   persistState();
+  const input = document.querySelector<HTMLInputElement>("#coord-input");
+  if (input) { input.value = ""; input.focus(); }
 };
 
 const onNewGame = async (): Promise<void> => {
@@ -175,7 +177,7 @@ const render = (): void => {
     <main class="layout">
       <form id="action-form" class="command-bar">
         <div class="input-group">
-          <input id="coord-input" type="text" placeholder="A3" maxlength="3" required autocomplete="off" />
+          <input id="coord-input" type="text" placeholder="A3" maxlength="3" required autocomplete="off" autofocus />
           <div class="action-toggle">
             <input type="radio" name="action" value="test" id="act-test" checked />
             <label for="act-test">Test</label>
@@ -201,7 +203,6 @@ const render = (): void => {
             <circle cx="50" cy="60" r="5" fill="#4a4">
               <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" />
             </circle>
-            <!-- (label removed) -->
             <!-- Decorative vents -->
             <rect x="300" y="50" width="60" height="2" rx="1" fill="#222" />
             <rect x="300" y="56" width="60" height="2" rx="1" fill="#222" />

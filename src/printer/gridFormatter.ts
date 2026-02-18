@@ -28,7 +28,7 @@ export const formatPrintedGrid = (print: PrintedGrid): FormattedReceipt => {
     boardLines.push(` ${label} ${row}`);
   }
   const footerLines = [
-    `ACTION: ${print.action.toUpperCase()} @ (${print.coordinate.x},${print.coordinate.y})`,
+    `ACTION: ${print.action.toUpperCase()} @ ${String.fromCharCode(65 + print.coordinate.y)}${print.coordinate.x}`,
     `STATUS: ${print.statusLine}`,
     `TIME: ${print.timestamp}`,
   ];
