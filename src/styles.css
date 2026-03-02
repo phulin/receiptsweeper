@@ -24,7 +24,8 @@ body {
 	max-width: 940px;
 	margin: 0 auto;
 	padding: 1.25rem;
-	display: grid;
+	display: flex;
+	flex-direction: column;
 	gap: 0.4rem;
 }
 
