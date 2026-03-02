@@ -154,6 +154,9 @@ body {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	width: 100%;
+	max-width: 480px;
+	margin: 0 auto;
 }
 
 .printer-body {
@@ -169,11 +172,11 @@ body {
 }
 
 .printer-paper-clip {
-	width: 460px;
+	width: 88%;
 	margin: 0 auto;
 	overflow: hidden;
-	padding: 0 1.4rem 1.4rem;
-	margin-top: -24%;
+	padding: 0 4% 1.4rem;
+	margin-top: -23.5%;
 	position: relative;
 	z-index: 3;
 }
@@ -193,6 +196,8 @@ body {
 	font-size: 0.95rem;
 	line-height: 1.5;
 	text-align: center;
+	width: 100%;
+	overflow: hidden;
 }
 
 .receipt-divider {
@@ -239,7 +244,16 @@ body {
 		padding: 0.8rem;
 	}
 
-	.controls {
-		align-items: center;
+	.command-bar {
+		flex-wrap: wrap;
+	}
+}
+
+@media (max-width: 480px) {
+	.receipt-strip {
+		font-size: clamp(0.7rem, 4vw, 0.95rem);
+	}
+	.printer-paper {
+		padding: 0.8rem 0.6rem 1rem;
 	}
 }
